@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FridgeChef{% endblock %}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        .font-serif { font-family: 'Playfair Display', serif; }
+    </style>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-[#fafaf9] text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <nav class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <a href="{{ url_for('index') }}" class="flex items-center gap-2 text-2xl font-black text-brand-600">
+                    <i class="fa-solid fa-leaf"></i> FridgeChef
+                </a>
+
+                <div class="flex gap-4 sm:gap-6 text-sm sm:text-base font-medium">
+                    {% if session.get('user_id') %}
+                        <a href="{{ url_for('index') }}" class="text-slate-600 hover:text-brand-600 transition-colors hidden sm:inline-block"><i class="fa-solid fa-magnifying-glass"></i> Suche</a>
+                        <a href="{{ url_for('cookbook') }}" class="text-slate-600 hover:text-brand-600 transition-colors"><i class="fa-solid fa-book"></i> Kochbuch</a>
+                        <a href="{{ url_for('shopping_list') }}" class="text-slate-600 hover:text-brand-600 transition-colors"><i class="fa-solid fa-cart-shopping"></i> Liste</a>
+                        <a href="{{ url_for('tracker') }}" class="text-slate-600 hover:text-brand-600 transition-colors"><i class="fa-solid fa-fire"></i> Tracker</a>
+                        <a href="{{ url_for('logout') }}" class="text-slate-400 hover:text-red-500 ml-2 transition-colors" title="Logout"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+                    {% else %}
+                        <a href="{{ url_for('auth') }}" class="text-brand-600 hover:text-brand-700 bg-brand-50 px-4 py-2 rounded-lg transition-colors">Login / Registrieren</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-3xl mx-auto px-4 mt-6 w-full">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% set color = 'bg-blue-50 text-blue-800 border-blue-200' %}
+                    {% set icon = 'fa-circle-info' %}
+
+                    {% if category == 'success' %}
+                        {% set color = 'bg-brand-50 text-brand-800 border-brand-200' %}
+                        {% set icon = 'fa-circle-check' %}
+                    {% endif %}
+                    {% if category == 'danger' %}
+                        {% set color = 'bg-red-50 text-red-800 border-red-200' %}
+                        {% set icon = 'fa-circle-exclamation' %}
+                    {% endif %}
+                    {% if category == 'warning' %}
+                        {% set color = 'bg-amber-50 text-amber-900 border-amber-200' %}
+                        {% set icon = 'fa-triangle-exclamation' %}
+                    {% endif %}
+
+                    <div class="p-4 mb-4 rounded-xl border {{ color }} shadow-sm flex items-center gap-3 animate-fade-in-down">
+                        <i class="fa-solid {{ icon }} text-lg"></i>
+                        <span class="font-medium">{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <main class="flex-grow max-w-5xl mx-auto w-full px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 text-center text-sm">
+        <p><i class="fa-solid fa-utensils mb-2 text-brand-500 text-xl"></i></p>
+        <p>FridgeChef &copy; 2026 - Gebaut mit Flask &amp; Python (Uniprojekt)</p>
+    </footer>
+
+</body>
+</html>

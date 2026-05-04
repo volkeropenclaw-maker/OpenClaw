@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Ergebnisse – FridgeChef{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+  <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i>Zurück
+  </a>
+  <div>
+    <h2 class="mb-0 fw-light">{{ results|length }} Rezept{{ 'e' if results|length != 1 else '' }} gefunden</h2>
+    <p class="text-muted mb-0 small">Basierend auf {{ selected|length }} Zutat(en)</p>
+  </div>
+</div>
+
+<!-- Selected ingredients -->
+<div class="d-flex flex-wrap gap-2 mb-4">
+  {% for ing in selected %}
+  <span class="badge bg-dark">{{ ing }}</span>
+  {% endfor %}
+</div>
+
+<!-- Sort & Filter bar (not used for KI results) -->
+{% if not is_ai|default(false) %}
+<div class="card shadow-sm mb-4">
+  <div class="card-body py-2">
+    <form action="{{ url_for('results') }}" method="GET" class="row g-2 align-items-end">
+      <div class="col-auto">
+        <label class="form-label small mb-1">Sortieren nach</label>
+        <select class="form-select form-select-sm" name="sort" onchange="this.form.submit()">
+          <option value="match"      {% if sort_by == 'match'      %}selected{% endif %}>Beste Übereinstimmung</option>
+          <option value="time"       {% if sort_by == 'time'       %}selected{% endif %}>Kürzeste Zeit</option>
+          <option value="difficulty" {% if sort_by == 'difficulty' %}selected{% endif %}>Schwierigkeit</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <label class="form-label small mb-1">Schwierigkeit</label>
+        <select class="form-select form-select-sm" name="difficulty" onchange="this.form.submit()">
+          <option value="">Alle</option>
+          <option value="Easy"   {% if filters.difficulty == 'Easy'   %}selected{% endif %}>Einfach</option>
+          <option value="Medium" {% if filters.difficulty == 'Medium' %}selected{% endif %}>Mittel</option>
+          <option value="Hard"   {% if filters.difficulty == 'Hard'   %}selected{% endif %}>Schwer</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <label class="form-label small mb-1">Küche</label>
+        <select class="form-select form-select-sm" name="cuisine" onchange="this.form.submit()">
+          <option value="">Alle</option>
+          {% for c in cuisines %}
+          <option value="{{ c }}" {% if filters.cuisine == c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <label class="form-label small mb-1">Max. Zeit (min)</label>
+        <input type="number" class="form-control form-control-sm" name="maxPrepTime"
+               value="{{ filters.maxPrepTime or '' }}" placeholder="z.B. 30"
+               style="width:90px" onchange="this.form.submit()">
+      </div>
+      <div class="col-auto d-flex gap-3 align-items-center pt-3">
+        <div class="form-check mb-0">
+          <input class="form-check-input" type="checkbox" name="vegetarian" id="r_veg"
+                 {% if filters.vegetarian %}checked{% endif %} onchange="this.form.submit()">
+          <label class="form-check-label small" for="r_veg">Vegetarisch</label>
+        </div>
+        <div class="form-check mb-0">
+          <input class="form-check-input" type="checkbox" name="vegan" id="r_vegan"
+                 {% if filters.vegan %}checked{% endif %} onchange="this.form.submit()">
+          <label class="form-check-label small" for="r_vegan">Vegan</label>
+        </div>
+        <div class="form-check mb-0">
+          <input class="form-check-input" type="checkbox" name="glutenFree" id="r_gluten"
+                 {% if filters.glutenFree %}checked{% endif %} onchange="this.form.submit()">
+          <label class="form-check-label small" for="r_gluten">Glutenfrei</label>
+        </div>
+        <div class="form-check mb-0">
+          <input class="form-check-input" type="checkbox" name="lactoseFree" id="r_lactose"
+                 {% if filters.lactoseFree %}checked{% endif %} onchange="this.form.submit()">
+          <label class="form-check-label small" for="r_lactose">Laktosefrei</label>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+{% if results %}
+<div class="row g-4">
+  {% for item in results %}
+  {% set recipe = item.recipe %}
+  <div class="col-md-6 col-lg-4">
+    <a href="{{ url_for('recipe_detail', recipe_id=recipe.id) }}" class="text-decoration-none">
+      <div class="card h-100 shadow-sm recipe-card">
+        <div class="position-relative">
+          <img src="{{ recipe.image }}" class="card-img-top recipe-img" alt="{{ recipe.name }}">
+          <div class="position-absolute top-0 end-0 m-2">
+            <span class="badge bg-dark bg-opacity-75">
+              <i class="bi bi-clock me-1"></i>{{ recipe.prepTime }} min
+            </span>
+          </div>
+          <!-- Match bar -->
+          <div class="position-absolute bottom-0 start-0 end-0 px-2 pb-2">
+            <div class="progress" style="height:5px;" title="{{ item.matched }}/{{ item.total }} Zutaten vorhanden">
+              <div class="progress-bar bg-success" style="width: {{ (item.score * 100)|int }}%"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="d-flex flex-wrap gap-1 mb-2">
+            <span class="badge bg-secondary">{{ recipe.cuisine }}</span>
+            <span class="badge {% if recipe.difficulty == 'Easy' %}bg-success{% elif recipe.difficulty == 'Medium' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+              {% if recipe.difficulty == 'Easy' %}Einfach
+              {% elif recipe.difficulty == 'Medium' %}Mittel
+              {% else %}Schwer{% endif %}
+            </span>
+            {% for tag in recipe.tags %}
+            <span class="badge bg-info text-dark">
+              {% if tag == 'vegetarian' %}🌿 Vegetarisch
+              {% elif tag == 'vegan' %}🌱 Vegan
+              {% elif tag == 'glutenFree' %}🌾 Glutenfrei
+              {% elif tag == 'lactoseFree' %}🥛 Laktosefrei
+              {% endif %}
+            </span>
+            {% endfor %}
+          </div>
+          <h5 class="card-title text-dark">{{ recipe.name }}</h5>
+          <p class="card-text text-muted small">
+            <i class="bi bi-check-circle-fill text-success me-1"></i>
+            {{ item.matched }} von {{ item.total }} Zutaten vorhanden
+          </p>
+        </div>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="text-center py-5">
+  <div class="display-1">🍽️</div>
+  <h3 class="mt-3 fw-light">Keine Rezepte gefunden</h3>
+  <p class="text-muted">Versuche andere Zutaten oder entferne einige Filter.</p>
+  <a href="{{ url_for('index') }}" class="btn btn-dark mt-2">Zurück zur Suche</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,63 @@
+body {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+.recipe-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: none;
+}
+
+.recipe-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.recipe-img {
+  height: 200px;
+  object-fit: cover;
+}
+
+.ingredient-badge {
+  font-size: 0.85rem;
+  padding: 0.4em 0.75em;
+  transition: opacity 0.15s;
+}
+
+.ingredient-badge:hover {
+  opacity: 0.75;
+}
+
+.step-number {
+  min-width: 36px;
+  min-height: 36px;
+}
+
+.navbar-brand {
+  font-size: 1.3rem;
+  letter-spacing: 0.5px;
+}
+
+.footer {
+  font-size: 0.85rem;
+}
+
+.progress {
+  border-radius: 0;
+}
+
+.list-group-item-success {
+  background-color: #d1fae5;
+  border-color: #a7f3d0;
+}
+
+.list-group-item-danger {
+  background-color: #fee2e2;
+  border-color: #fecaca;
+}

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Login – FridgeChef{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+
+    <div class="text-center mb-4">
+      <h2 class="fw-light">Konto</h2>
+      <p class="text-muted">Einloggen oder neu registrieren</p>
+    </div>
+
+    <ul class="nav nav-tabs mb-4" id="authTabs">
+      <li class="nav-item w-50 text-center">
+        <a class="nav-link active" data-bs-toggle="tab" href="#loginTab">
+          <i class="bi bi-box-arrow-in-right me-1"></i>Einloggen
+        </a>
+      </li>
+      <li class="nav-item w-50 text-center">
+        <a class="nav-link" data-bs-toggle="tab" href="#registerTab">
+          <i class="bi bi-person-plus me-1"></i>Registrieren
+        </a>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+
+      <!-- Login -->
+      <div class="tab-pane fade show active" id="loginTab">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+            <form method="POST">
+              <input type="hidden" name="action" value="login">
+              <div class="mb-3">
+                <label class="form-label">E-Mail</label>
+                <input type="email" name="email" class="form-control" required
+                       placeholder="deine@email.de">
+              </div>
+              <div class="mb-4">
+                <label class="form-label">Passwort</label>
+                <input type="password" name="password" class="form-control" required
+                       placeholder="••••••••">
+              </div>
+              <button type="submit" class="btn btn-dark w-100">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Einloggen
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Register -->
+      <div class="tab-pane fade" id="registerTab">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+            <form method="POST">
+              <input type="hidden" name="action" value="register">
+              <div class="mb-3">
+                <label class="form-label">Name</label>
+                <input type="text" name="display_name" class="form-control"
+                       placeholder="Dein Name">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">E-Mail</label>
+                <input type="email" name="email" class="form-control" required
+                       placeholder="deine@email.de">
+              </div>
+              <div class="mb-4">
+                <label class="form-label">Passwort</label>
+                <input type="password" name="password" class="form-control" required
+                       placeholder="Min. 6 Zeichen" minlength="6">
+              </div>
+              <button type="submit" class="btn btn-dark w-100">
+                <i class="bi bi-person-plus me-2"></i>Registrieren
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
